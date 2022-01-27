@@ -228,16 +228,18 @@ def bbox_iou(box1, box2, x1y1x2y2=True, IoU=False, GIoU=False, DIoU=False, CIoU=
     union_true = w2 * h2 + eps
 
     iou = inter / union
+    iou_true = inter / union_true
+    
     if IoU == True:
       return iou
-    iou_true = inter / union_true
+    
     if GIoU or DIoU or CIoU or UIoU:
         cw = torch.max(b1_x2, b2_x2) - torch.min(b1_x1, b2_x1)  # convex (smallest enclosing box) width
         ch = torch.max(b1_y2, b2_y2) - torch.min(b1_y1, b2_y1)  # convex height
         if CIoU or DIoU or UIoU:  # Distance or Complete IoU https://arxiv.org/abs/1911.08287v1
             c2 = cw ** 2 + ch ** 2 + eps  # convex diagonal squared
             rho2 = ((b2_x1 + b2_x2 - b1_x1 - b1_x2) ** 2 + (b2_y1 + b2_y2 - b1_y1 - b1_y2) ** 2) / 4  # center distance squared
-            lAC = (A**2 + C**2) / 2*(c2**2)
+            lAC = (A**2 + C**2) / (c2**2)
             if DIoU:
                 return iou - rho2 / c2  # DIoU
             elif CIoU:  # https://github.com/Zzh-tju/DIoU-SSD-pytorch/blob/master/utils/box/box_utils.py#L47
